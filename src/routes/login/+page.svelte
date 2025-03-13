@@ -1,34 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { redirect } from '@sveltejs/kit';
 	let email = $state('');
 	let password = $state('');
-	let confirmPassword = $state('');
 	let loading = $state(false);
 	let success = $state(false);
-
-	const passwordStrength = () => {
-		//check if password is atleast 8 characters, has one uppercase, one lowercase, one number and one special character
-		const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-		return passwordRegex.test(password);
-	};
 
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 		loading = true;
-		if (password !== confirmPassword) {
-			alert('Passwords do not match');
-			loading = false;
-			return;
-		}
-		if (!passwordStrength()) {
-			alert('Password is not strong enough');
-			loading = false;
-			return;
-		}
-		loading = true;
 		try {
-			const response = await fetch('/api/auth/register', {
+			const response = await fetch('/api/auth/login', {
 				method: 'POST',
 				body: JSON.stringify({ email, password })
 			});
@@ -39,10 +20,9 @@
 				return;
 			}
 			success = true;
-			goto('/login');
+			goto('/dashboard');
 		} catch (error) {
-			error = 'Failed to register';
-			loading = false;
+			console.error(error);
 		}
 	}
 </script>
@@ -85,24 +65,6 @@
 						type="password"
 						name="password"
 						bind:value={password}
-						id="password"
-						autocomplete="current-password"
-						required
-						class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-					/>
-				</div>
-			</div>
-			<div>
-				<div class="flex items-center justify-between">
-					<label for="password" class="block text-sm/6 font-medium text-gray-900"
-						>Confirm Password</label
-					>
-				</div>
-				<div class="mt-2">
-					<input
-						type="password"
-						name="password"
-						bind:value={confirmPassword}
 						id="password"
 						autocomplete="current-password"
 						required
