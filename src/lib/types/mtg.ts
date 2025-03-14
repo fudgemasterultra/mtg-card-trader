@@ -111,3 +111,23 @@ export interface MtgCard {
 		cardhoarder?: string;
 	};
 }
+
+export interface BulkDataItem {
+	object: 'bulk_data';
+	id: string;
+	type: 'oracle_cards' | 'unique_artwork' | 'default_cards' | 'all_cards' | 'rulings';
+	updated_at: string;
+	uri: string;
+	name: string;
+	description: string;
+	size: number;
+	download_uri: string;
+	content_type: string;
+	content_encoding: string;
+}
+
+export interface BulkDataList {
+	object: 'list';
+	has_more: boolean;
+	data: BulkDataItem[];
+}
