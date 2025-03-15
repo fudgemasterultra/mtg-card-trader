@@ -1,5 +1,5 @@
 import type { ObjectId } from 'mongodb';
-
+import type { MtgCard } from './mtg';
 export type User = {
 	_id: ObjectId;
 	username: string;
@@ -11,9 +11,7 @@ export type User = {
 
 export type Card = {
 	_id: ObjectId;
-	name: string;
-	imageUrl: string;
-};
+} & MtgCard;
 
 export type Session = {
 	_id: ObjectId;

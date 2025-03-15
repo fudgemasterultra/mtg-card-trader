@@ -1,5 +1,6 @@
 import * as skryfall from 'scryfall-api';
 import type { BulkDataList, MtgCard } from '$lib/types/mtg';
+import { grabClient, addBulkCards } from '$lib/database/mongoEntry';
 
 const callSkryFall = async <T>(
 	url: string,
@@ -37,10 +38,18 @@ const callSkryFall = async <T>(
 
 const refillDatabase = async () => {
 	const { data } = await callSkryFall<BulkDataList>('https://api.scryfall.com/bulk-data');
-	let defaultCardsUrl: string;
+	let defaultCardsUrl = '';
 	for (const i of data) {
 		if (i.type === 'default_cards') {
-			defaultCardsUrl = i.uri;
+			defaultCardsUrl = i.download_uri;
 		}
 	}
+	if (defaultCardsUrl === '') {
+		throw Error('unable to get bulk data');
+	}
+	const cards = await callSkryFall<MtgCard[]>(defaultCardsUrl);
+	const client = await grabClient();
+	await addBulkCards(client, cards);
 };
+
+export { refillDatabase };

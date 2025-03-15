@@ -1,6 +1,7 @@
 import { MongoClient, Db, ObjectId } from 'mongodb';
 import { MONGODB_URI } from '$env/static/private';
 import type { User, Card, Session } from '$lib/types/types';
+import type { MtgCard } from '$lib/types/mtg';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 
@@ -38,6 +39,23 @@ async function userExists(client: MongoClient, { email, id }: { email?: string; 
 		return user;
 	}
 	return undefined;
+}
+
+async function addBulkCards(client: MongoClient, cards: MtgCard[]) {
+	const db = client.db(mongoMtgCardTrader);
+	const collection = db.collection<Card>(mongoCards);
+	const cardsToInsert: Card[] = [];
+	for (const card of cards) {
+		const foundCard = await collection.findOne({ oracle_id: card.oracle_id });
+		if (foundCard !== null) {
+			continue;
+		}
+		cardsToInsert.push({
+			_id: new ObjectId(),
+			...card
+		});
+	}
+	await collection.insertMany(cardsToInsert);
 }
 
 async function createUser(
@@ -124,4 +142,4 @@ async function grabClient() {
 	return await connectToDatabase();
 }
 
-export { intialMigration, grabClient, createUser, loginUser, validateSession };
+export { intialMigration, grabClient, createUser, loginUser, validateSession, addBulkCards };
